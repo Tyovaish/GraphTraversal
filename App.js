@@ -4,17 +4,28 @@ import { StyleSheet, Text, View, TouchableOpacity, Button, Picker } from 'react-
 const TILE_MAP_SIZE = 176;
 const TILE_TYPE = ["OPEN_TILE","WALL_TILE","START_TILE","END_TILE","WALL_TILE","CHECKED_TILE","GOLDEN_PATH_TITLE"];
 const TILE_ROW_SIZE = 11;
+const TILE_COLUMN_SIZE = 15;
+
 const Tile = (props) => {
   return (
     <TouchableOpacity style = {props.style} onPress = {() => props.changeTileType(props.tileId)}/>
   )
 }
-const TileMap = (props) => {
-  const tileMap = props.tileIdArray.map((tileId) => {
-    const tileStyle = props.determineTileStyle(tileId)
-    return <Tile key={tileId} style = {[tileStyle,styles.tileBox]} tileId = {tileId} changeTileType = {props.changeTileType} />
-  })
-  return tileMap
+const TileRow = (props) => {
+    const tileRow = props.tileIdArray.map((tileId) => {
+      let tileStyle = props.determineTileStyle(tileId)
+      return (<Tile key={tileId} style = {[tileStyle,styles.tileBox]} tileId = {tileId} changeTileType = {props.changeTileType}/>) 
+    })
+    return (<View style = {props.style}> {tileRow} </View>)
+}
+
+const TileGrid = (props) => {
+  let tileGrid = []
+  for(let startOfTileIds=0; startOfTileIds<props.tileIdArray.length;startOfTileIds+=TILE_COLUMN_SIZE){
+      tileGrid.push(
+        <TileRow style = {{flex: 1,  flexDirection: 'column', justifyContent: 'space-around'}} key = {startOfTileIds} tileIdArray = {props.tileIdArray.slice(startOfTileIds,startOfTileIds+TILE_COLUMN_SIZE)} determineTileStyle = {props.determineTileStyle} changeTileType = {props.changeTileType} />)
+  }
+  return (<View style={styles.container}> {tileGrid} </View>)
 }
 
 class TileData {
@@ -31,7 +42,7 @@ export default class App extends React.Component {
   constructor(props){
     super(props)
     let tileIdArray = []
-    for(let tileId = 0; tileId<TILE_MAP_SIZE;++tileId){
+    for(let tileId = 0; tileId<TILE_ROW_SIZE*TILE_COLUMN_SIZE;++tileId){
       tileIdArray.push(tileId)
     }
     this.state = {
@@ -41,6 +52,7 @@ export default class App extends React.Component {
     }
   }
   changeTileType(id) {
+      console.log(id)
       let tileDataToChange = this.state.tileIdToData.filter((tileData) =>{
           if(tileData.tileId === id){
               return true
@@ -88,6 +100,7 @@ export default class App extends React.Component {
       }
       return false
     })[0].tileType
+
     switch(tileType){
       case "OPEN_TILE":
             return styles.openTile
@@ -108,9 +121,7 @@ export default class App extends React.Component {
   render() {
     return (
       <View style ={styles.mainScreen}>
-        <View style={styles.container}>
-          <TileMap determineTileStyle = {(id) => {return this.determineTileStyle(id)}} tileIdArray = {this.state.tileIdArray} changeTileType = {(id)=>{this.changeTileType(id)}}/>
-        </View>
+        <TileGrid determineTileStyle = {(id) => {return this.determineTileStyle(id)}} tileIdArray = {this.state.tileIdArray} changeTileType = {(id)=>{this.changeTileType(id)}}/>
         <View style = {styles.inputBox}>
           <Button style = {styles.inputBox} title ="START" onPress = {() => {this.changeTileType(15)}} />
             <Picker
@@ -137,17 +148,13 @@ const styles = StyleSheet.create({
     top: 35,
   },
   container: {
-    position: 'relative',
     flex: 2,  
     flexDirection: 'row', 
-    flexWrap:"wrap",
-    alignItems: 'center'
+    alignItems: 'center',
   },
   tileBox: {
-    position: 'relative',
-    height : 30,
-    width: 30,
-    margin: "0.5% 0.5% 0.5% 0.5%"
+    flex: 1,
+    margin: "1% 1% 1% 1%"
   },
   inputBox : {
     flex: 1,
