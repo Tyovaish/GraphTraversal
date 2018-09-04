@@ -168,7 +168,7 @@ export default class App extends React.Component {
                       if(dfsStack[i].tileId === tileData.tileId){
                         return false;
                       }
-                    }
+                    } 
                     return true;
                 }).filter((tileData)=>{
                   if(tileData.tileType === "START_TILE" || tileData.tileType === "WALL_TILE") {
@@ -187,7 +187,8 @@ export default class App extends React.Component {
      this.forceUpdate()
   }
 _connectTile(currentTile,tileToConnect,connections){
-  for(connection in connections){
+  for(let i=0;i<connections.length;++i){
+    let connection = connections[i]
     if(connection[0].tileId === currentTile.tileId){
           connection[1]=tileToConnect
           return;
