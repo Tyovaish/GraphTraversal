@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Button, Picker } from 'react-native';
 
 const TILE_TYPE = ["OPEN_TILE","WALL_TILE","START_TILE","END_TILE","WALL_TILE","CHECKED_TILE","GOLDEN_PATH_TILE"];
-const TILE_ROW_SIZE = 10;
-const TILE_COLUMN_SIZE = 10;
+const TILE_ROW_SIZE = 15;
+const TILE_COLUMN_SIZE = 15;
 
 const Tile = (props) => {
   return (
@@ -164,6 +164,11 @@ export default class App extends React.Component {
                             return false;
                           }
                     }
+                    for(let i = 0; i<dfsStack.length; ++i){
+                      if(dfsStack[i].tileId === tileData.tileId){
+                        return false;
+                      }
+                    }
                     return true;
                 }).filter((tileData)=>{
                   if(tileData.tileType === "START_TILE" || tileData.tileType === "WALL_TILE") {
@@ -174,12 +179,22 @@ export default class App extends React.Component {
                 for(let i = 0;i<neighbors.length;i++){
                   dfsStack.push(neighbors[i])
                   connections.push([neighbors[i],currentTileData])
+                  this._connectTile(neighbors[i],currentTileData,connections)
                 }
                 alreadySearchedTiles.push(currentTileData)
           }
       }
      this.forceUpdate()
   }
+_connectTile(currentTile,tileToConnect,connections){
+  for(connection in connections){
+    if(connection[0].tileId === currentTile.tileId){
+          connection[1]=tileToConnect
+          return;
+    }
+  }
+  connections.push([currentTile,tileToConnect])
+}
   _runBFS(startTileArray){
     let bfsQueue = []
     let alreadySearchedTiles = []
@@ -205,6 +220,11 @@ export default class App extends React.Component {
                           return false;
                         }
                   }
+                  for(let i = 0; i<bfsQueue.length; ++i){
+                    if(bfsQueue[i].tileId === tileData.tileId){
+                      return false;
+                    }
+                  }
                   return true;
               }).filter((tileData)=>{
                 if(tileData.tileType === "START_TILE" || tileData.tileType === "WALL_TILE") {
@@ -214,7 +234,7 @@ export default class App extends React.Component {
               })
               for(let i = 0;i<neighbors.length;i++){
                 bfsQueue.push(neighbors[i])
-                connections.push([neighbors[i],currentTileData])
+                this._connectTile(neighbors[i],currentTileData,connections)
               }
               alreadySearchedTiles.push(currentTileData)
     }
@@ -263,6 +283,11 @@ export default class App extends React.Component {
                 return false;
               }
           }
+          for(let i = 0; i<greedyQueue.length; ++i){
+            if(greedyQueue[i].tileId === tileData.tileId){
+              return false;
+            }
+          }
           return true;
       }).filter((tileData)=>{
         if(tileData.tileType === "START_TILE" || tileData.tileType === "WALL_TILE") {
@@ -273,7 +298,7 @@ export default class App extends React.Component {
 
       for(let i = 0;i<neighbors.length;i++){
         greedyQueue.push([neighbors[i],this._minimumManhattanDistance(neighbors[i],endTileArray)])
-        connections.push([neighbors[i],currentTileData])
+        this._connectTile(neighbors[i],currentTileData,connections)
       }
       alreadySearchedTiles.push(currentTileData)
       }
@@ -282,7 +307,7 @@ export default class App extends React.Component {
   _runAStar(startTileArray,endTileArray){
     let aStarQueue = []
     let alreadySearchedTiles = []
-    let connections = []
+    let connections = [] 
 
     while(startTileArray.length !== 0){
         aStarQueue.push([startTileArray.shift(),0]);
@@ -307,6 +332,11 @@ export default class App extends React.Component {
                 return false;
               }
           }
+          for(let i = 0; i<aStarQueue.length; ++i){
+            if(aStarQueue[i][0].tileId === tileData.tileId){
+              return false;
+            }
+          }
           return true;
       }).filter((tileData)=>{
         if(tileData.tileType === "START_TILE" || tileData.tileType === "WALL_TILE") {
@@ -317,7 +347,7 @@ export default class App extends React.Component {
 
       for(let i = 0;i<neighbors.length;i++){
         aStarQueue.push([neighbors[i],currentCost+this._minimumManhattanDistance(neighbors[i],endTileArray)])
-        connections.push([neighbors[i],currentTileData])
+        this._connectTile(neighbors[i],currentTileData,connections)
       }
       alreadySearchedTiles.push(currentTileData)
       }
