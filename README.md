@@ -2,7 +2,7 @@
 <h3> Try the application now! </h3>
 <p1>https://snack.expo.io/@git/github.com/Tyovaish/GraphTraversal</p1>
 <h1>TILE INFO</h1>
-![Alt Text](https://media.giphy.com/media/4ZvJm6VMuWU810nL8f/giphy.gif)
+<img src="https://media.giphy.com/media/4ZvJm6VMuWU810nL8f/giphy.gif"/>
 <ul>
   <li>Blue Tile : open tile, able to be traversed</li>
   <li>Black Tile : wall tile, not able to be traversed </li>
